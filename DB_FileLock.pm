@@ -1,9 +1,9 @@
 #!/usr/local/bin/perl -w
 # Tie::DB_FileLock - an implementation of a tied, locking DB_File Hash.
-# Tie::FileLock.pm      6/28/1999
+# Tie::FileLock.pm      2000-01-10
 # John M Vinopal        banshee@resort.com
 #
-# Copyright (C) 1998-99, John M Vinopal, All Rights Reserved.
+# Copyright (C) 1998-2000, John M Vinopal, All Rights Reserved.
 # This program is free software.  Permission is granted to copy
 # and modify this program so long as this copyright notice is
 # preserved.  This software is distributed without warranty.
@@ -23,7 +23,7 @@ use Fcntl qw(:flock O_RDONLY O_RDWR O_CREAT);
 use vars qw(@ISA @EXPORT $VERSION $DEBUG);
 @ISA = qw(Tie::Hash DB_File);
 @EXPORT = @DB_File::EXPORT;
-$VERSION = '0.08';
+$VERSION = '0.10';
 $DEBUG = 0;
 
 sub TIEHASH {
@@ -149,57 +149,58 @@ sub debug { $DEBUG = $_[1] if (@_ > 1); return $DEBUG };
 # Everything unlocked and closed automatically.
 sub DESTROY  { $_[0]->unlockDB(); $_[0]->_closeDB(); }
 
-sub STORE    {
-               print STDERR "STORE: @_\n" if $DEBUG;
-               croak("RO hash") if $_[0]->{OPENMODE} == O_RDONLY;
-               $_[0]->{DB}->{$_[1]} = $_[2];
-             }
-sub FETCH    { 
-               print STDERR "FETCH: @_\n" if $DEBUG;
-               $_[0]->{DB}->{$_[1]};
-             }
+sub STORE {
+		print STDERR "STORE: @_\n" if $DEBUG;
+		croak("RO hash") if $_[0]->{OPENMODE} == O_RDONLY;
+		$_[0]->{DBOBJ}->put($_[1], $_[2]);
+}
+sub FETCH { 
+		print STDERR "FETCH: @_\n" if $DEBUG;
+		my $v;
+		$_[0]->{DBOBJ}->get($_[1], $v);
+		return $v;
+}
 sub FIRSTKEY {
-               print STDERR "FIRSTKEY: @_\n" if $DEBUG;
-			   # XXX - painful.  Cheaper way to reset a hash?
-               my $a = scalar keys %{$_[0]->{DB}};
-               each %{$_[0]->{DB}};
-             }
+		print STDERR "FIRSTKEY: @_\n" if $DEBUG;
+		$_[0]->{DBOBJ}->FIRSTKEY();
+}
 sub NEXTKEY  {
-               # NEXTKEY relies on the setup from FIRSTKEY
-               print STDERR "NEXTKEY: @_\n" if $DEBUG;
-               each %{$_[0]->{DB}};
-             }
+		print STDERR "NEXTKEY: @_\n" if $DEBUG;
+		$_[0]->{DBOBJ}->NEXTKEY($_[1]);
+}
 sub EXISTS   {
-               print STDERR "EXISTS: @_\n" if $DEBUG;
-               exists $_[0]->{DB}->{$_[1]};
-             }
+		print STDERR "EXISTS: @_\n" if $DEBUG;
+		exists $_[0]->{DB}->{$_[1]};
+}
 sub DELETE   {
-               print STDERR "DELETE: @_\n" if $DEBUG;
-               croak("RO hash") if $_[0]->{OPENMODE} == O_RDONLY;
-               delete $_[0]->{DB}->{$_[1]};
-             }
+		print STDERR "DELETE: @_\n" if $DEBUG;
+		croak("RO hash") if $_[0]->{OPENMODE} == O_RDONLY;
+		delete $_[0]->{DB}->{$_[1]};
+}
 sub CLEAR    {
-               print STDERR "CLEAR: @_\n" if $DEBUG;
-               croak("RO hash") if $_[0]->{OPENMODE} == O_RDONLY;
-               %{$_[0]->{DB}} = ();
-             }
+		print STDERR "CLEAR: @_\n" if $DEBUG;
+		croak("RO hash") if $_[0]->{OPENMODE} == O_RDONLY;
+		%{$_[0]->{DB}} = ();
+}
 
-# XXX - use AUTOLOADER?  No RO hash warnings.
-sub put { my $self = shift; $self->{DBOBJ}->put(@_); }
-sub get { my $self = shift; $self->{DBOBJ}->get(@_); }
-sub del { my $self = shift; $self->{DBOBJ}->del(@_); }
-sub seq { my $self = shift; $self->{DBOBJ}->seq(@_); }
-sub sync { my $self = shift; $self->{DBOBJ}->sync(@_); }
-sub fd { my $self = shift; $self->{DBOBJ}->fd(@_); }
-# XXX - BTREE only calls.
-sub get_dup { my $self = shift; $self->{DBOBJ}->get_dup(@_); }
-sub find_dup { my $self = shift; $self->{DBOBJ}->find_dup(@_); }
-sub del_dup { my $self = shift; $self->{DBOBJ}->del_dup(@_); }
-# XXX - DBM Filters
-sub filter_store_key { $_[0]->{DBOBJ}->filter_store_key(@_[1..$#_]); }
-sub filter_store_value { $_[0]->{DBOBJ}->filter_store_value(@_[1..$#_]); }
-sub filter_fetch_key { $_[0]->{DBOBJ}->filter_fetch_key(@_[1..$#_]); }
-sub filter_fetch_value { $_[0]->{DBOBJ}->filter_fetch_value(@_[1..$#_]); }
+# Use AUTOLOADER here?
+sub put { my $r = shift; $r->{DBOBJ}->put(@_); }
+sub get { my $r = shift; $r->{DBOBJ}->get(@_); }
+sub del { my $r = shift; $r->{DBOBJ}->del(@_); }
+sub seq { my $r = shift; $r->{DBOBJ}->seq(@_); }
+sub sync { my $r = shift; $r->{DBOBJ}->sync(@_); }
+sub fd { my $r = shift; $r->{DBOBJ}->fd(@_); }
+
+# BTREE only calls.
+sub get_dup { my $r = shift; $r->{DBOBJ}->get_dup(@_); }
+sub find_dup { my $r = shift; $r->{DBOBJ}->find_dup(@_); }
+sub del_dup { my $r = shift; $r->{DBOBJ}->del_dup(@_); }
+
+#  DBM Filters
+sub filter_store_key { my $r = shift; $r->{DBOBJ}->filter_store_key(@_); }
+sub filter_store_value { my $r = shift; $r->{DBOBJ}->filter_store_value(@_); }
+sub filter_fetch_key { my $r = shift; $r->{DBOBJ}->filter_fetch_key(@_); }
+sub filter_fetch_value { my $r = shift; $r->{DBOBJ}->filter_fetch_value(@_); }
 
 package Tie::DB_FileLock::HASHINFO;
 use strict;
@@ -252,6 +253,7 @@ Tie::DB_FileLock - Locking access to Berkeley DB 1.x
  $old_filter = $db->filter_fetch_key  ( sub { ... } );
  $old_filter = $db->filter_fetch_value( sub { ... } );
 
+ [undef $X;]
  untie %hash;
 
 =head1 DESCRIPTION
@@ -318,6 +320,19 @@ into:
         }
       }
       untie(%db);
+
+=head1 SPEED
+
+The first law of thermodynamics holds true for object methods.  Access
+through DB_FileLock is slower than through DB_File.  Working with a
+40meg dbm containing 110k records, we find
+
+			Keys	Values	Store
+	DB_File		30s	35s	55s
+	DB_FileLock	40s	45s	60s
+
+All values +/- ~3s.  YMMV.  Previous versions of DB_FileLock had a very
+inefficient FIRSTKEY() routine.
 
 =head1 AUTHOR
 

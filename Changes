@@ -19,3 +19,11 @@ Renamed to Tie::DB_FileLock from DB_File for inclusion in CPAN.
 Rolled in the DB_File 1.65 tests.  Created Makefile.PL.  Finally
 wrote a README file.  Wrote -this- file.
 
+0.10	Mon Jan 10 23:58:34 PST 2000	John M Vinopal
+
+Rolled in the DB_File 1.71 tests.  Fixed filter stubs.  Revised
+FIRSTKEY() and NEXTKEY() to call the same in DB_File, and rid myself
+of the evilness that was doubling keys() execution time.  Now calling
+the lower-level put() and get() functions to avoid filter side-effects.
+Ran some simple benchmarks and added a 'Speed' section to the docs.
+
