@@ -1,0 +1,21 @@
+0.00	June 1998	John M Vinopal
+
+Initial module code replacing generic locking code from
+'Programming Perl' example.
+
+0.01 - 0.07	John M Vinopal
+
+Named DB_Lock.  Debugging and extensions.  Testing on FreeBSD,
+Linux, and Solaris.
+
+0.08	11/28/1998	John M Vinopal
+
+Full support for Hash and Btree methods.  Debugging code.
+POD documentation added.
+
+0.09	Mon Jun 28 15:07:34 PDT 1999	John M Vinopal
+
+Renamed to Tie::DB_FileLock from DB_File for inclusion in CPAN.
+Rolled in the DB_File 1.65 tests.  Created Makefile.PL.  Finally
+wrote a README file.  Wrote -this- file.
+
