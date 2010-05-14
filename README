@@ -3,7 +3,7 @@ Name              DSLI  Description                                  Info
 Tie::DB_FileLock  Rdpr  Locking access to Berkeley DB 1.x.           JMV
 
 # Tie::FileLock.pm		1/10/2000
-# John M Vinopal        banshee@resort.com
+# John M Vinopal        jmv@cpan.org
 #
 # Copyright (C) 1998-2000, John M Vinopal, All Rights Reserved.
 # This program is free software.  Permission is granted to copy
@@ -27,6 +27,8 @@ DESCRIPTION
 	Tie::DB_FileLock is therefore suitable for large dbms with
 	relatively short locking periods.
 
+	DB_File::Lock is another option, a lightweight wrapper
+	around DB_File using an external lockfile.
 	See the POD documentation for more information.
 
 
@@ -34,7 +36,7 @@ PREREQUISITES
 -------------
 
     * Perl 5.004 or greater.
-    * Module DB_File (1.65 and 1.71 work, others ?).
+    * Module DB_File (1.65 through 1.820 should work).
 
 BUILDING THE MODULE
 -------------------
@@ -78,5 +80,5 @@ CHANGES
 
 See the Changes file.
 
-John M Vinopal <banshee@resort.com>
+John M Vinopal <jmv@cpan.org>
 

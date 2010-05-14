@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl -w
 # Tie::DB_FileLock - an implementation of a tied, locking DB_File Hash.
 # Tie::FileLock.pm      2000-01-10
-# John M Vinopal        banshee@resort.com
+# John M Vinopal        jmv@cpan.org
 #
 # Copyright (C) 1998-2000, John M Vinopal, All Rights Reserved.
 # This program is free software.  Permission is granted to copy
@@ -23,7 +23,7 @@ use Fcntl qw(:flock O_RDONLY O_RDWR O_CREAT);
 use vars qw(@ISA @EXPORT $VERSION $DEBUG);
 @ISA = qw(Tie::Hash DB_File);
 @EXPORT = @DB_File::EXPORT;
-$VERSION = '0.10';
+$VERSION = '0.11';
 $DEBUG = 0;
 
 sub TIEHASH {
@@ -264,6 +264,9 @@ providing exclusive access or preventing page-level collisions.
 Tie::DB_FileLock extends DB_File, providing a locking layer using
 flock().
 
+You should probably be using BerkeleyDB which supports locking, but
+if that isn't an option read on.
+
 Unlike Tie::DB_Lock, Tie::DB_FileLock does not duplicate files to 
 allow concurrent access for readers and writers.  Tie::DB_FileLock
 is therefore suitable for large dbms with relatively short locking
@@ -319,6 +322,7 @@ into:
            $dbobj->lockDB();
         }
       }
+      undef($dbobj);
       untie(%db);
 
 =head1 SPEED
@@ -336,9 +340,16 @@ inefficient FIRSTKEY() routine.
 
 =head1 AUTHOR
 
-John M Vinopal, banshee@resort.com
+John M Vinopal, jmv@cpan.org
 
 =head1 SEE ALSO
+
+BerkeleyDB - a replacement for DB_File that does locking and much much more.
+
+Tie::DB_Lock - duplicates the data file to allow concurrent readers/writers,
+inappropriate for large data files.
+
+DB_File::Lock - locks using an external lockfile, otherwise similar.
 
 DB_File(3p).
 

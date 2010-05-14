@@ -27,3 +27,6 @@ of the evilness that was doubling keys() execution time.  Now calling
 the lower-level put() and get() functions to avoid filter side-effects.
 Ran some simple benchmarks and added a 'Speed' section to the docs.
 
+0.11	Fri May 14 14:57:01 PDT 2010	John M Vinopal
+
+Added documentation.  Mentioned BerkeleyDB.  Merged the DB_File 1.820 tests.
